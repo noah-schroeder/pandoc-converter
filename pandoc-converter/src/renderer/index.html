@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self';" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandoc Converter</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="drop-hint" class="drop-hint">
+    <div class="drop-hint-inner">
+      <div class="drop-hint-icon">↓</div>
+      <div>Drop your file to convert</div>
+    </div>
+  </div>
+
+  <main class="app">
+    <header class="header">
+      <div class="logo" aria-hidden="true">
+        <span class="logo-doc"></span>
+        <span class="logo-arrow">→</span>
+        <span class="logo-doc logo-doc--alt"></span>
+      </div>
+      <h1>Pandoc Converter</h1>
+      <p class="subtitle">Convert a document in one click.</p>
+    </header>
+
+    <!-- Step 1: file -->
+    <section class="step">
+      <div class="step-label"><span class="step-num">1</span> Your file</div>
+      <button id="pick-file" class="filebox" type="button">
+        <div class="filebox-empty" id="filebox-empty">
+          <span class="filebox-plus">＋</span>
+          <span>Choose a file <em>or drag it here</em></span>
+        </div>
+        <div class="filebox-filled" id="filebox-filled" hidden>
+          <span class="file-icon">📄</span>
+          <span class="file-name" id="file-name"></span>
+          <span class="file-change">Change</span>
+        </div>
+      </button>
+    </section>
+
+    <!-- Step 2: format -->
+    <section class="step">
+      <div class="step-label"><span class="step-num">2</span> Convert to</div>
+      <div class="select-wrap">
+        <select id="format" class="select">
+          <option value="docx">Word document (.docx)</option>
+          <option value="html">Web page (.html)</option>
+          <option value="markdown">Markdown (.md)</option>
+          <option value="epub">E-book (.epub)</option>
+          <option value="odt">OpenDocument (.odt)</option>
+          <option value="rtf">Rich Text (.rtf)</option>
+          <option value="latex">LaTeX (.tex)</option>
+          <option value="plain">Plain text (.txt)</option>
+        </select>
+        <span class="select-caret" aria-hidden="true">▾</span>
+      </div>
+    </section>
+
+    <!-- Step 3: destination -->
+    <section class="step">
+      <div class="step-label"><span class="step-num">3</span> Save to</div>
+      <button id="pick-folder" class="folderbox" type="button">
+        <span class="folder-icon">📁</span>
+        <span class="folder-path" id="folder-path">Same folder as your file</span>
+        <span class="folder-change">Change</span>
+      </button>
+    </section>
+
+    <button id="convert" class="convert-btn" type="button" disabled>
+      <span class="convert-label">Convert</span>
+      <span class="spinner" hidden></span>
+    </button>
+
+    <!-- Result -->
+    <section id="result" class="result" hidden></section>
+  </main>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

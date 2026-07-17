@@ -1,0 +1,66 @@
+{
+  "name": "pandoc-converter",
+  "version": "1.0.0",
+  "description": "A simple, standalone document converter powered by pandoc.",
+  "author": "Noah Schroeder",
+  "homepage": "https://github.com/noah-schroeder/pandoc-converter",
+  "license": "GPL-2.0",
+  "main": "src/main.js",
+  "scripts": {
+    "fetch-pandoc": "node scripts/fetch-pandoc.js",
+    "make-icon": "node scripts/make-icon.js",
+    "start": "electron .",
+    "dist": "npm run make-icon && electron-builder",
+    "dist:linux": "npm run make-icon && electron-builder --linux",
+    "dist:win": "npm run make-icon && electron-builder --win",
+    "dist:mac": "npm run make-icon && electron-builder --mac"
+  },
+  "devDependencies": {
+    "adm-zip": "^0.5.16",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "tar": "^7.4.3"
+  },
+  "build": {
+    "appId": "com.noah-schroeder.pandocconverter",
+    "productName": "Pandoc Converter",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/pandoc",
+        "to": "pandoc"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.png",
+      "category": "public.app-category.productivity",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/icon.png",
+      "category": "Office",
+      "maintainer": "Noah Schroeder"
+    }
+  }
+}

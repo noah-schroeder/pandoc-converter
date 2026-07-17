@@ -1,0 +1,78 @@
+name: Build installers
+
+# Builds the app for Windows, macOS (Apple Silicon + Intel), and Linux.
+# Run it manually from the Actions tab, or push a version tag like `v1.0.0`
+# to also attach the installers to a GitHub Release.
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows (x64)
+            os: windows-latest
+            dist: dist:win
+          - name: macOS (Apple Silicon)
+            os: macos-latest      # arm64 runner
+            dist: dist:mac
+          - name: macOS (Intel)
+            os: macos-13          # x64 runner
+            dist: dist:mac
+          - name: Linux (x64)
+            os: ubuntu-latest
+            dist: dist:linux
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Bundle pandoc for this OS
+        run: npm run fetch-pandoc
+
+      - name: Build installer
+        run: npm run ${{ matrix.dist }}
+
+      # Collect just the user-facing installers (skip unpacked dirs, blockmaps, etc.)
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.AppImage
+            dist/*.deb
+          if-no-files-found: error
+
+  # When a tag is pushed, gather everything into a single GitHub Release.
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true

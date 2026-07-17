@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.claude/
+resources/pandoc/
+build/icon.png
+*.log
+.DS_Store

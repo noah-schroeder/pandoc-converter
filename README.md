@@ -105,9 +105,9 @@ Output lands in `dist/`.
 >
 > **Easiest way to get all of them:** the included GitHub Actions workflow
 > ([.github/workflows/build.yml](.github/workflows/build.yml)) builds Windows,
-> macOS (Apple Silicon + Intel), and Linux installers on GitHub's runners — no need
+> macOS (Apple Silicon), and Linux installers on GitHub's runners — no need
 > to own a Mac or PC. Push the project to GitHub, open the **Actions** tab, and run
-> **Build installers** (or push a tag like `v1.0.0` to also attach them to a
+> **Build installers** (or push a tag like `v1.1.0` to also attach them to a
 > Release). Download the finished installers from the run's **Artifacts**.
 
 > **Signing note:** the macOS `.dmg` and Windows `.exe` are unsigned. They install

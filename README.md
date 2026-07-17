@@ -3,6 +3,8 @@
 A fully vibe-coded (Claude Opus 4.8) dead-simple desktop app for converting documents, powered by [pandoc](https://pandoc.org).
 Built for non-technical users: **choose a file → pick a format → click Convert.**
 
+Why? I got tired of having to manually convert markdown to something libre writer can read. Yea i know about extensions. Didn't want that. Wanted to build this. Because Claude did it. And why not? I'll use it. 
+
 - **Fully standalone** — pandoc is bundled inside the app. Users install nothing else.
 - **Fully isolated** — the app never touches or depends on anything in the user's
   system: it uses its own bundled pandoc (never a system install), makes no network

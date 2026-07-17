@@ -6,14 +6,14 @@
   "homepage": "https://github.com/noah-schroeder/pandoc-converter",
   "license": "GPL-2.0",
   "main": "src/main.js",
-  "scripts": {
+   "scripts": {
     "fetch-pandoc": "node scripts/fetch-pandoc.js",
     "make-icon": "node scripts/make-icon.js",
     "start": "electron .",
-    "dist": "npm run make-icon && electron-builder",
-    "dist:linux": "npm run make-icon && electron-builder --linux",
-    "dist:win": "npm run make-icon && electron-builder --win",
-    "dist:mac": "npm run make-icon && electron-builder --mac"
+    "dist": "npm run make-icon && electron-builder --publish never",
+    "dist:linux": "npm run make-icon && electron-builder --linux --publish never",
+    "dist:win": "npm run make-icon && electron-builder --win --publish never",
+    "dist:mac": "npm run make-icon && electron-builder --mac --publish never"
   },
   "devDependencies": {
     "adm-zip": "^0.5.16",

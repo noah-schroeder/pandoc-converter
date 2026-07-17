@@ -7,6 +7,8 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron');
 // or child processes directly.
 contextBridge.exposeInMainWorld('api', {
   pickInputFile: () => ipcRenderer.invoke('pick-input-file'),
+  pickInputFolder: () => ipcRenderer.invoke('pick-input-folder'),
+  inspectInput: (inputPath) => ipcRenderer.invoke('inspect-input', inputPath),
   pickOutputFolder: () => ipcRenderer.invoke('pick-output-folder'),
   convert: (payload) => ipcRenderer.invoke('convert', payload),
   openFolder: (folder) => ipcRenderer.invoke('open-folder', folder),

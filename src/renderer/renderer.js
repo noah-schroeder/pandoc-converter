@@ -1,14 +1,19 @@
 'use strict';
 
 // State
-let inputFile = null;      // { path, name, dir }
-let outputFolder = null;   // chosen folder, or null = "same as file"
+let inputFile = null;        // { path, name, dir, isFolder? }
+let outputFolder = null;     // chosen folder, or null = "same as file"
+let projectInfo = null;      // result of inspectInput for the current selection
+let chosenMainTex = null;    // label of the main .tex when a project has several
 
 // Elements
 const pickFileBtn = document.getElementById('pick-file');
+const pickProjectFolderBtn = document.getElementById('pick-project-folder');
 const fileboxEmpty = document.getElementById('filebox-empty');
 const fileboxFilled = document.getElementById('filebox-filled');
+const fileIconEl = document.getElementById('file-icon');
 const fileNameEl = document.getElementById('file-name');
+const projectInfoEl = document.getElementById('project-info');
 const formatEl = document.getElementById('format');
 const pickFolderBtn = document.getElementById('pick-folder');
 const folderPathEl = document.getElementById('folder-path');
@@ -20,9 +25,18 @@ const dropHint = document.getElementById('drop-hint');
 
 let busy = false;
 
+function iconFor(file) {
+  if (file.isFolder) return '📁';
+  if (/\.zip$/i.test(file.name)) return '📦';
+  return '📄';
+}
+
 function setInputFile(file) {
   inputFile = file;
+  projectInfo = null;
+  chosenMainTex = null;
   if (file) {
+    fileIconEl.textContent = iconFor(file);
     fileNameEl.textContent = file.name;
     fileNameEl.title = file.path;
     fileboxEmpty.hidden = true;
@@ -31,8 +45,77 @@ function setInputFile(file) {
     fileboxEmpty.hidden = false;
     fileboxFilled.hidden = true;
   }
+  renderProjectInfo(null);
   updateFolderLabel();
   updateConvertState();
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+// Ask the main process what the selection is (LaTeX project? bibliography?
+// multiple main files?) and reflect it in the UI.
+async function refreshProjectInfo() {
+  if (!inputFile) { renderProjectInfo(null); return; }
+  const target = inputFile.path;
+  const info = await window.api.inspectInput(target);
+  // Guard against a newer selection having replaced this one mid-await.
+  if (!inputFile || inputFile.path !== target) return;
+  // A dropped item may turn out to be a folder — reflect that in the icon.
+  if (info.kind === 'folder' && !inputFile.isFolder) {
+    inputFile.isFolder = true;
+    fileIconEl.textContent = iconFor(inputFile);
+  }
+  projectInfo = info;
+  renderProjectInfo(info);
+  updateConvertState();
+}
+
+function renderProjectInfo(info) {
+  if (!info || !info.isLatexProject) {
+    projectInfoEl.hidden = true;
+    projectInfoEl.innerHTML = '';
+    return;
+  }
+  const found = [];
+  if (info.hasBib) found.push('bibliography');
+  if (info.hasCsl) found.push('citation style');
+  const detail = found.length ? `Found: ${found.join(' + ')}.` : 'No bibliography detected.';
+  const multi = info.candidates && info.candidates.length > 1;
+
+  let html = `<div class="pi-head"><span class="pi-badge">LaTeX project</span>`
+    + `<span class="pi-detail">${detail}</span></div>`;
+
+  if (multi) {
+    // Several files could be the main document (e.g. multiple drafts). Don't
+    // guess — make the user pick. Candidates are ordered best-guess-first.
+    if (!info.candidates.some((c) => c.label === chosenMainTex)) chosenMainTex = null;
+    html += `<div class="pi-ask">Found ${info.candidates.length} possible main documents — which should we convert?</div>`
+      + `<label class="pi-choose"><span class="pi-choose-label">Main file:</span>`
+      + `<select id="maintex-select" class="pi-select">`
+      + `<option value="" disabled${chosenMainTex ? '' : ' selected'}>Choose the main .tex…</option>`
+      + info.candidates.map((c, i) => {
+        const sel = c.label === chosenMainTex ? ' selected' : '';
+        const tag = i === 0 ? ' (likely)' : '';
+        return `<option value="${escapeHtml(c.label)}"${sel}>${escapeHtml(c.label)}${tag}</option>`;
+      }).join('')
+      + `</select></label>`;
+  } else if (info.candidates && info.candidates.length === 1) {
+    html += `<div class="pi-choose">Main file: <strong>${escapeHtml(info.candidates[0].label)}</strong></div>`;
+  }
+
+  projectInfoEl.innerHTML = html;
+  projectInfoEl.hidden = false;
+
+  if (multi) {
+    document.getElementById('maintex-select').addEventListener('change', (e) => {
+      chosenMainTex = e.target.value || null;
+      updateConvertState();
+    });
+  }
 }
 
 function updateFolderLabel() {
@@ -47,8 +130,13 @@ function updateFolderLabel() {
   }
 }
 
+// When a project has several possible main files, the user must pick one first.
+function needsMainChoice() {
+  return !!(projectInfo && projectInfo.candidates && projectInfo.candidates.length > 1 && !chosenMainTex);
+}
+
 function updateConvertState() {
-  convertBtn.disabled = busy || !inputFile;
+  convertBtn.disabled = busy || !inputFile || needsMainChoice();
 }
 
 function clearResult() {
@@ -64,6 +152,18 @@ pickFileBtn.addEventListener('click', async () => {
   if (file) {
     setInputFile(file);
     clearResult();
+    refreshProjectInfo();
+  }
+});
+
+pickProjectFolderBtn.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  if (busy) return;
+  const folder = await window.api.pickInputFolder();
+  if (folder) {
+    setInputFile(folder);
+    clearResult();
+    refreshProjectInfo();
   }
 });
 
@@ -105,6 +205,7 @@ window.addEventListener('drop', (e) => {
   const dir = fullPath.slice(0, fullPath.length - name.length - 1);
   setInputFile({ path: fullPath, name, dir });
   clearResult();
+  refreshProjectInfo();
 });
 
 // ---- Convert ----
@@ -125,8 +226,22 @@ convertBtn.addEventListener('click', async () => {
       inputPath: inputFile.path,
       format: formatEl.value,
       outputFolder,
+      chosenMainTex,
     });
-    showResult(res);
+    // Defensive: if the project turned out to have several main files, surface
+    // the chooser (normally already shown from inspect) — not a scary error.
+    if (res && res.needsMainSelection) {
+      projectInfo = {
+        isLatexProject: true,
+        candidates: res.candidates,
+        hasBib: projectInfo && projectInfo.hasBib,
+        hasCsl: projectInfo && projectInfo.hasCsl,
+      };
+      renderProjectInfo(projectInfo);
+      projectInfoEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      showResult(res);
+    }
   } catch (err) {
     showResult({ ok: false, message: 'Something went wrong. Please try again.' });
   } finally {

@@ -36,11 +36,19 @@
           <span>Choose a file <em>or drag it here</em></span>
         </div>
         <div class="filebox-filled" id="filebox-filled" hidden>
-          <span class="file-icon">📄</span>
+          <span class="file-icon" id="file-icon">📄</span>
           <span class="file-name" id="file-name"></span>
           <span class="file-change">Change</span>
         </div>
       </button>
+      <div class="or-folder">
+        Got a LaTeX / Overleaf project?
+        <button id="pick-project-folder" class="linkbtn" type="button">Choose a folder</button>
+        or drop its <strong>.zip</strong> above.
+        <span class="or-folder-hint">Include everything it needs (chapters, images,
+        <code>.bib</code>). The main file can have any name.</span>
+      </div>
+      <div id="project-info" class="project-info" hidden></div>
     </section>
 
     <!-- Step 2: format -->

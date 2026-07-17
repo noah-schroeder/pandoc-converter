@@ -3,8 +3,6 @@
 A fully vibe-coded (Claude Opus 4.8) dead-simple desktop app for converting documents, powered by [pandoc](https://pandoc.org).
 Built for non-technical users: **choose a file → pick a format → click Convert.**
 
-Why? I got tired of having to manually convert markdown to something libre writer can read. Yea i know about extensions. Didn't want that. Wanted to build this. Because Claude did it. And why not? I'll use it. 
-
 - **Fully standalone** — pandoc is bundled inside the app. Users install nothing else.
 - **Fully isolated** — the app never touches or depends on anything in the user's
   system: it uses its own bundled pandoc (never a system install), makes no network
@@ -24,6 +22,38 @@ OpenDocument, and more) — just pick the file; the format is detected automatic
 bundling a large LaTeX engine. Reading and writing LaTeX `.tex` source needs no such
 engine, so it is fully supported. See "Adding PDF later" below.)*
 
+### LaTeX / Overleaf projects
+
+You can convert a whole LaTeX **project**, not just a single `.tex` file — ideal for
+Overleaf documents with chapters, figures, and a bibliography:
+
+- **Drop the `.zip`** you download from Overleaf (*Menu → Download → Source*), **or**
+  click **Choose a folder** to point at an already-unzipped project.
+- The app finds the main `.tex` (the one with `\begin{document}`), pulls in
+  `\input`/`\include` chapters, resolves images, and — via pandoc's `--citeproc` —
+  turns `\cite{…}` into formatted citations plus a generated **references** list.
+- **Citation style:** if a `.csl` file is present in the project, it is used
+  automatically; otherwise pandoc's default style applies.
+- If a project has more than one file that could be the main document (for
+  example several drafts), the app **asks you to pick** which one to convert
+  rather than guessing — the most likely candidate is marked *(likely)*.
+
+**Requirements (there aren't many):**
+
+- **The main file can have any name** — `main.tex`, `thesis.tex`, `paper.tex`, etc.
+  The app finds it automatically as the `.tex` that contains `\begin{document}`;
+  it does *not* have to be called `main.tex`.
+- **Everything the document needs must be inside the folder / `.zip`** — chapter
+  files, images, the `.bib` bibliography, and any `.csl` style. (An Overleaf
+  *Download → Source* zip already contains all of this.)
+- Both bibliography styles work: biblatex (`\addbibresource{refs.bib}`) and classic
+  BibTeX (`\bibliography{refs}` + `\cite`).
+
+> **Not a full LaTeX engine.** Pandoc understands standard LaTeX (sections, figures,
+> tables, math, citations) very well, but it is *not* a LaTeX compiler: TikZ
+> drawings, exotic packages, and heavy custom macros may be dropped or approximated.
+> Ordinary papers and theses convert cleanly; highly customized documents may not.
+
 ---
 
 ## For users
@@ -32,10 +62,10 @@ Download the installer for your system and run it:
 
 | OS      | File                                  | How to use                     |
 | ------- | ------------------------------------- | ------------------------------ |
-| Windows | `Pandoc Converter Setup 1.0.0.exe`    | Double-click to install        |
-| macOS   | `Pandoc Converter-1.0.0.dmg`          | Open, drag to Applications     |
-| Linux   | `Pandoc Converter-1.0.0.AppImage`     | Make executable, double-click  |
-| Linux   | `pandoc-converter_1.0.0_amd64.deb`    | `sudo apt install ./…deb`      |
+| Windows | `Pandoc Converter Setup 1.1.0.exe`    | Double-click to install        |
+| macOS   | `Pandoc Converter-1.1.0.dmg`          | Open, drag to Applications     |
+| Linux   | `Pandoc Converter-1.1.0.AppImage`     | Make executable, double-click  |
+| Linux   | `pandoc-converter_1.1.0_amd64.deb`    | `sudo apt install ./…deb`      |
 
 Then: **Choose a file** (or drag it onto the window) → **Convert to** a format →
 optionally pick a **Save to** folder → **Convert**. Use **Show file** / **Open
@@ -114,6 +144,10 @@ Change `PANDOC_VERSION` in [scripts/fetch-pandoc.js](scripts/fetch-pandoc.js),
 delete `resources/pandoc/`, and re-run `npm run fetch-pandoc`.
 
 ---
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for the release history.
 
 ## License
 

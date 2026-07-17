@@ -1,12 +1,12 @@
 {
   "name": "pandoc-converter",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A simple, standalone document converter powered by pandoc.",
   "author": "Noah Schroeder",
   "homepage": "https://github.com/noah-schroeder/pandoc-converter",
   "license": "GPL-2.0",
   "main": "src/main.js",
-   "scripts": {
+  "scripts": {
     "fetch-pandoc": "node scripts/fetch-pandoc.js",
     "make-icon": "node scripts/make-icon.js",
     "start": "electron .",
@@ -15,8 +15,10 @@
     "dist:win": "npm run make-icon && electron-builder --win --publish never",
     "dist:mac": "npm run make-icon && electron-builder --mac --publish never"
   },
+  "dependencies": {
+    "adm-zip": "^0.5.16"
+  },
   "devDependencies": {
-    "adm-zip": "^0.5.16",
     "electron": "^33.2.0",
     "electron-builder": "^25.1.8",
     "tar": "^7.4.3"

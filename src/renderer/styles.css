@@ -151,6 +151,75 @@ html, body {
   flex-shrink: 0;
 }
 
+/* "or choose a folder" affordance + project info */
+.or-folder {
+  font-size: 12.5px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.5;
+}
+.linkbtn {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.linkbtn:hover { color: var(--accent-hover); }
+.or-folder-hint { display: block; margin-top: 4px; font-size: 11.5px; opacity: 0.85; }
+.or-folder-hint code {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.95em;
+  background: var(--accent-soft);
+  padding: 0 3px;
+  border-radius: 3px;
+}
+
+.project-info {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--accent-soft);
+  padding: 10px 12px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pi-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pi-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #fff;
+  background: var(--accent);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.pi-detail { color: var(--muted); }
+.pi-ask { color: var(--text); font-weight: 600; }
+.pi-choose-label { flex-shrink: 0; }
+.pi-choose { color: var(--text); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pi-choose strong { font-weight: 600; word-break: break-all; }
+.pi-select {
+  flex: 1;
+  min-width: 160px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--card);
+  border: 1.5px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+.pi-select:focus { outline: none; border-color: var(--accent); }
+
 /* Select */
 .select-wrap { position: relative; }
 .select {
